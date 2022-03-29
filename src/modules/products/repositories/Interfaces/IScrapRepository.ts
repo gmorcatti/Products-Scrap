@@ -1,4 +1,4 @@
-import { Product } from '@modules/products/entities/productEntity'
+import { Product } from '../../entities/productEntity'
 
 export interface IScrapRepository {
   scrapProduct(url: string): Promise<Product>;

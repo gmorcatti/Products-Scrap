@@ -1,19 +1,17 @@
-import { AppDataSource } from '@config/database'
-
-import { Product } from '@modules/products/entities/productEntity'
-import { IDatabaseRepository } from '@modules/products/repositories/Interfaces/IDatabaseRepository'
-
 import { Repository } from 'typeorm'
 
-import { ICreateProductDTO } from './dtos/ICreateProductsDTO'
+import { AppDataSource } from '../../../config/database'
 
-const { getRepository } = AppDataSource
+import { Product } from '../entities/productEntity'
+import { IDatabaseRepository } from '../repositories/Interfaces/IDatabaseRepository'
+
+import { ICreateProductDTO } from './dtos/ICreateProductsDTO'
 
 export class DatabaseRepository implements IDatabaseRepository {
   private repository: Repository<Product>;
 
   constructor () {
-    this.repository = getRepository(Product)
+    this.repository = AppDataSource.getRepository(Product)
   }
 
   async create ({
@@ -34,8 +32,29 @@ export class DatabaseRepository implements IDatabaseRepository {
     await this.repository.save(product)
   }
 
-  findByTitle (title: string): Promise<Product> {
-    // @ts-ignore
-    return this.repository.findOne({ title })
+  async update ({
+    title,
+    image,
+    price,
+    description,
+    url,
+  }: ICreateProductDTO): Promise<void> {
+    const product = {
+      title,
+      image,
+      price,
+      description,
+      url,
+    }
+
+    await this.repository.update({ url }, product)
+  }
+
+  findByUrl (url: string): Promise<Product> {
+    return this.repository.findOne({
+      where: {
+        url,
+      },
+    })
   }
 }

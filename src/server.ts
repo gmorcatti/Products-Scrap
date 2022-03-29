@@ -1,10 +1,15 @@
+import 'dotenv/config'
+import 'express-async-errors'
+
+// import './config/database'
+
 import express from 'express'
 
-import { test } from './modules/products/controllers/test'
+import router from './routes'
 
 const app = express()
 
-app.get('/', test)
+app.use(router)
 
 const PORT = 3000
 app.listen(PORT, (): void => {

@@ -5,7 +5,9 @@ import { ScrapRepository } from '../repositories/scrapRepository'
 export const test = async (req: Request, res: Response) => {
   const scrapRepository = new ScrapRepository()
 
-  await scrapRepository.scrapProduct(req.params.url)
+  const url = String(req.query.url)
 
-  res.end()
+  const teste = await scrapRepository.scrapProduct(url)
+
+  res.send(teste)
 }

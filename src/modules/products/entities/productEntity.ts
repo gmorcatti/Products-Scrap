@@ -1,9 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
-
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 @Entity()
 export class Product {
     @PrimaryGeneratedColumn()
-    id: number
+    id?: number
 
     @Column()
     title: string
@@ -11,12 +10,19 @@ export class Product {
     @Column()
     image: string
 
-    @Column()
-    price: string
+    @Column({
+      type: 'numeric',
+    })
+    price: number
 
     @Column()
     description: string
 
-    @Column()
+    @Column({
+      unique: true,
+    })
     url: string
+
+    @UpdateDateColumn()
+    updated_at?: Date
 }
