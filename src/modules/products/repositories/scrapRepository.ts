@@ -1,6 +1,8 @@
 
 import puppeteer, { JSONObject } from 'puppeteer'
 
+import { AppError } from '../../../config/errors/AppError'
+
 import { formatCurrencyToNumber } from '../../../utils/currency/formatCurrencyToNumber'
 import { mapSitesSelectors, ISelectors } from '../../../utils/mapSiteSelectors'
 import { getSiteHost } from '../../../utils/treatURL/getSiteHost'
@@ -25,6 +27,7 @@ export class ScrapRepository implements IScrapRepository {
     await page.goto(url, { waitUntil: 'networkidle2' })
 
     const currentSite = getSiteHost(url)
+
     const siteSelectors = mapSitesSelectors[currentSite]
 
     const treatedUrl = removeQueryParams(url)

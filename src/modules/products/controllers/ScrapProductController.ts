@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 
 import { DatabaseRepository } from '../repositories/databaseRepository'
-
 import { ScrapRepository } from '../repositories/scrapRepository'
 
 import { ScrapProductService } from '../services/ScrapProductService'
