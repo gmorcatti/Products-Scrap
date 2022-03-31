@@ -107,3 +107,8 @@ cd node_modules/puppeteer && npm install
 ```bash
 exit
 ```
+
+### Exemplos de produtos:
+* https://www.amazon.com.br/Antipulgas-Carrapatos-Nexgard-para-C%C3%A3es/dp/B07S8BMFPD
+* https://www.submarino.com.br/produto/4648920379
+* https://www.americanas.com.br/produto/126126590
