@@ -1,9 +1,9 @@
-export const formatCurrencyToNumber = (currency: string, hasCents: boolean = true) => {
+export const formatCurrencyToNumber = (currency: string) => {
   const regexGetAllThatsNotANumber = /[^0-9]+/g
 
   const currencyWithoutSymbols = currency.replace(regexGetAllThatsNotANumber, '')
 
   const currencyNumberWithoutSymbols = Number(currencyWithoutSymbols)
 
-  return hasCents ? currencyNumberWithoutSymbols / 100 : currencyNumberWithoutSymbols
+  return currencyNumberWithoutSymbols / 100
 }

@@ -1,4 +1,3 @@
-// import cors from 'cors'
 import { Router } from 'express'
 
 import { productRoutes } from './ProductRoutes'

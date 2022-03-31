@@ -9,7 +9,7 @@ export class MockScrapRepository implements IScrapRepository {
 
     const treatedProduct = {
       ...productInfo,
-      price: formatCurrencyToNumber(productInfo.price, true),
+      price: formatCurrencyToNumber(productInfo.price),
     }
 
     return treatedProduct as unknown as Product

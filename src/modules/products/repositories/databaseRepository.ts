@@ -31,8 +31,9 @@ export class DatabaseRepository implements IDatabaseRepository {
       price,
       description,
       url,
-      updated_at,
     })
+
+    if (updated_at) product.updated_at = updated_at
 
     await this.repository.save(product)
   }
@@ -45,14 +46,15 @@ export class DatabaseRepository implements IDatabaseRepository {
     url,
     updated_at,
   }: ICreateProductDTO): Promise<void> {
-    const product = {
+    const product: Product = {
       title,
       image,
       price,
       description,
       url,
-      updated_at,
     }
+
+    if (updated_at) product.updated_at = updated_at
 
     await this.repository.update({ url }, product)
   }

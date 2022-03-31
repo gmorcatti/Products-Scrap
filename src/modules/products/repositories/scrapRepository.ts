@@ -1,5 +1,5 @@
 
-import puppeteer from 'puppeteer'
+import puppeteer, { Page } from 'puppeteer'
 
 import { formatCurrencyToNumber } from '../../../utils/currency/formatCurrencyToNumber'
 import { mapSitesSelectors, ISelectors } from '../../../utils/mapSiteSelectors'
@@ -14,19 +14,14 @@ export class ScrapRepository implements IScrapRepository {
     const browser = await puppeteer.launch({
       headless: true,
       args: [
-        '--disable-gpu',
-        '--disable-dev-shm-usage',
         '--disable-setuid-sandbox',
-        '--no-first-run',
         '--no-sandbox',
-        '--no-zygote',
-        '--deterministic-fetch',
-        '--disable-features=IsolateOrigins',
-        '--disable-site-isolation-trials',
-        // '--single-process',
       ],
     })
     const page = await browser.newPage()
+
+    // A way to allow the browser to access the page
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
 
     await page.goto(url, { waitUntil: 'networkidle2' })
 
@@ -36,25 +31,53 @@ export class ScrapRepository implements IScrapRepository {
 
     const treatedUrl = removeQueryParams(url)
 
-    const evaluateFunction = ({ title, description, image, price }: ISelectors, url: string) => {
-      return {
-        title: document.querySelector(title)?.textContent.trim() || '',
-        description: document.querySelector(description)?.textContent.trim() || '',
-        url,
-        image: document.querySelector(image)?.getAttribute('src') || '',
-        price: document.querySelector(price)?.textContent.trim() || '',
-      }
-    }
-
-    const element = await page.evaluate(evaluateFunction, siteSelectors, treatedUrl)
-
-    const treatedElement = {
-      ...element,
-      price: formatCurrencyToNumber(element.price, siteSelectors.priceHasCents),
-    }
+    const elements = await this.getPageInfoBySelectors(page, siteSelectors, treatedUrl)
 
     await browser.close()
 
-    return treatedElement
+    return elements
+  }
+
+  private async getPageInfoBySelectors (page: Page, siteSelectors: ISelectors, url: string) {
+    const selectors = Object.keys(siteSelectors)
+
+    // Create a promise that get each info by it selector
+    const elementsPromise = selectors.map(async (key: string) => {
+      if (key === 'url') return [key, url]
+
+      const currentSelector: string = siteSelectors[key]
+
+      try {
+        const pageSelector = await page.waitForSelector(currentSelector, { timeout: 60000 })
+
+        const currentElement: string = await pageSelector.evaluate((el, key): string => {
+          if (key === 'image') return el?.getAttribute('src') || ''
+
+          return el?.textContent.trim() || ''
+        }, key)
+
+        return [key, currentElement]
+      } catch (err) {
+        return [key, '']
+      }
+    })
+
+    // Resolve all promises
+    const elementsPromiseResolved = await Promise.all(elementsPromise)
+
+    // Create a single object with all selectors value
+    const objectElements = elementsPromiseResolved.reduce((acc: any, cur: string[]) => {
+      const key: string = cur[0]
+      const value: string = cur[1]
+
+      if (key === 'price') {
+        acc[key] = formatCurrencyToNumber(value)
+      } else {
+        acc[key] = value
+      }
+      return acc
+    }, {})
+
+    return objectElements
   }
 }

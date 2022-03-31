@@ -34,9 +34,7 @@ export class Database {
 
     const configFile = {
       type: 'postgres',
-      host: 'postgres_db',
-      // host: 'localhost',
-      // port: 5432,
+      host: process.env.PG_HOST,
       username: process.env.PG_USER,
       password: String(process.env.PG_PASS),
       synchronize: true,
