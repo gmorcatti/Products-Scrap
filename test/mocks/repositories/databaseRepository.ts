@@ -1,20 +1,15 @@
-import { Repository } from 'typeorm'
+import { Product } from '../../../src/modules/products/entities/productEntity'
 
-import { Database } from '../../../config/database'
+import { ICreateProductDTO } from '../../../src/modules/products/repositories/dtos/ICreateProductsDTO'
+import { IDatabaseRepository } from '../../../src/modules/products/repositories/Interfaces/IDatabaseRepository'
 
-import { Product } from '../entities/productEntity'
-import { IDatabaseRepository } from '../repositories/Interfaces/IDatabaseRepository'
+import { MockAppDataSource } from '../database'
 
-import { ICreateProductDTO } from './dtos/ICreateProductsDTO'
-
-export class DatabaseRepository implements IDatabaseRepository {
-  private repository: Repository<Product>;
+export class MockDatabaseRepository implements IDatabaseRepository {
+  private repository;
 
   constructor () {
-    const database = Database.getInstance()
-    const AppDataSource = database.getAppDataSource()
-
-    this.repository = AppDataSource.getRepository(Product)
+    this.repository = MockAppDataSource.getRepository('product')
   }
 
   async create ({

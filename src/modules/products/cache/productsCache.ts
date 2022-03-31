@@ -23,4 +23,9 @@ export class Cache {
   public get (key: string): Product {
     return Cache.cacheInstance.get(key) as Product
   }
+
+  public cleanAll () {
+    const allKeys = Cache.cacheInstance.keys()
+    Cache.cacheInstance.del(allKeys)
+  }
 }

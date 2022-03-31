@@ -12,7 +12,7 @@ export class ScrapProductController {
 
     const scrapProductService = new ScrapProductService(scrapRepository, databaseRepository)
 
-    const url = String(req.query.url)
+    const url = req.query.url && String(req.query.url)
 
     const product = await scrapProductService.execute(url)
 

@@ -1,14 +1,14 @@
 version: "3.9"
 services:
-  # app:
-  #   build: .
-  #   container_name: application
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - .:/app-node
-  #   networks:
-  #     - application
+  app:
+    build: .
+    container_name: application
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app-node
+    networks:
+      - application
 
   postgres_db:
     image: postgres:14
@@ -19,9 +19,9 @@ services:
       - POSTGRES_PASSWORD=${PG_PASS}
     ports:
       - "5432:5432"
-#     networks:
-#       - application
+    networks:
+      - application
 
-# networks:
-#   application:
-#     driver: bridge
+networks:
+  application:
+    driver: bridge

@@ -1,3 +1,5 @@
+import { differenceInHours } from 'date-fns'
+
 import { AppError } from '../../../config/errors/AppError'
 
 import { mapSitesSelectors } from '../../../utils/mapSiteSelectors'
@@ -11,6 +13,11 @@ import { Product } from '../entities/productEntity'
 import { IDatabaseRepository } from '../repositories/Interfaces/IDatabaseRepository'
 import { IScrapRepository } from '../repositories/Interfaces/IScrapRepository'
 
+type RequestType = {
+  requestType: 'Cache' | 'Database' | 'Scrap'
+}
+type ProductWithRequestType = Product & RequestType
+
 export class ScrapProductService {
   ONE_HOUR = 60 * 60 * 1000
 
@@ -23,8 +30,9 @@ export class ScrapProductService {
     this.cache = Cache.getInstance()
   }
 
-  async execute (url: string): Promise<Product> {
+  async execute (url: string): Promise<ProductWithRequestType> {
     if (!url) throw new AppError('The URL parameter was not informed.')
+
     if (!url.includes('http')) throw new AppError("The URL parameter informed is malformed (insert the 'http://' or 'https://')")
 
     const treatedUrl = removeQueryParams(url)
@@ -40,19 +48,24 @@ export class ScrapProductService {
     const cachedProduct = this.cache.get(treatedUrl)
     if (cachedProduct) {
       console.log('Found product in Cache Instance')
-      return cachedProduct
+      return {
+        ...cachedProduct,
+        requestType: 'Cache',
+      }
     }
 
     // If the cache doesn't exist, search in database and verify if the time has expired.
     const databaseProduct = await this.databaseRepository.findByUrl(treatedUrl)
 
     const productNotExist = !databaseProduct || !Object.keys(databaseProduct).length
-
     const productIsExpired = productNotExist || this.productIsExpired(databaseProduct)
 
     if (!productNotExist && !productIsExpired) {
       console.log('Found product in Database')
-      return databaseProduct
+      return {
+        ...databaseProduct,
+        requestType: 'Database',
+      }
     }
 
     // Just scrap the product if it doesn't exist in database or it's expired
@@ -71,7 +84,10 @@ export class ScrapProductService {
     // Insert the product in memory cache
     this.cache.insert(treatedUrl, productInfo, this.ONE_HOUR)
 
-    return productInfo
+    return {
+      ...productInfo,
+      requestType: 'Scrap',
+    }
   }
 
   productIsExpired (product: Product): boolean {
@@ -79,13 +95,11 @@ export class ScrapProductService {
 
     // Set the current timezone time to UTC
     const now = new Date()
-    now.setDate(now.getUTCDate())
-    now.setHours(now.getUTCHours())
 
     const productLastUpdate = new Date(product.updated_at)
 
-    const dbDateIsGreaterThanOneHourAgo = now.getTime() - productLastUpdate.getTime() > this.ONE_HOUR
+    const differenceInHoursBetweenDbDateAndNow = differenceInHours(now, productLastUpdate)
 
-    return dbDateIsGreaterThanOneHourAgo
+    return differenceInHoursBetweenDbDateAndNow >= 1
   }
 }

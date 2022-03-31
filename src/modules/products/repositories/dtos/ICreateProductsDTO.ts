@@ -4,4 +4,5 @@ export interface ICreateProductDTO {
   price: number
   description: string
   url: string
+  updated_at?: Date
 }

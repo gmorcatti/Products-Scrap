@@ -1,3 +1,7 @@
+# SQlite files
+testDB
+testDB/*
+
 # Logs
 logs
 *.log

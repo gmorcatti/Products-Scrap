@@ -8,8 +8,12 @@ export const ErrorHandler = (err: Error, _: Request, response: Response, __: Nex
       message: err.message,
     })
   }
+
+  console.error(err)
+
   return response.status(500).json({
     status: 'error',
     message: `Internal server error - ${err.message}`,
+    stack: err.stack,
   })
 }

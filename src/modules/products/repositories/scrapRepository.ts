@@ -1,7 +1,5 @@
 
-import puppeteer, { JSONObject } from 'puppeteer'
-
-import { AppError } from '../../../config/errors/AppError'
+import puppeteer from 'puppeteer'
 
 import { formatCurrencyToNumber } from '../../../utils/currency/formatCurrencyToNumber'
 import { mapSitesSelectors, ISelectors } from '../../../utils/mapSiteSelectors'
@@ -19,7 +17,13 @@ export class ScrapRepository implements IScrapRepository {
         '--disable-gpu',
         '--disable-dev-shm-usage',
         '--disable-setuid-sandbox',
+        '--no-first-run',
         '--no-sandbox',
+        '--no-zygote',
+        '--deterministic-fetch',
+        '--disable-features=IsolateOrigins',
+        '--disable-site-isolation-trials',
+        // '--single-process',
       ],
     })
     const page = await browser.newPage()
@@ -32,7 +36,7 @@ export class ScrapRepository implements IScrapRepository {
 
     const treatedUrl = removeQueryParams(url)
 
-    const evaluateFunction = ({ title, description, image, price }: JSONObject & ISelectors, url: string) => {
+    const evaluateFunction = ({ title, description, image, price }: ISelectors, url: string) => {
       return {
         title: document.querySelector(title)?.textContent.trim() || '',
         description: document.querySelector(description)?.textContent.trim() || '',
